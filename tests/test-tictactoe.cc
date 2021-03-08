@@ -8,12 +8,17 @@ using tictactoe::BoardState;
 
 TEST_CASE("Invalid string provided to constructor") {
   SECTION("String is too short") {
-    REQUIRE_THROWS_AS(Board("xxooo"), std::invalid_argument);
+    REQUIRE_THROWS_AS(Board(""), std::invalid_argument);
   }
 
-  SECTION("placeholder") {
-
+  SECTION("String is too large") {
+    REQUIRE_THROWS_AS(Board(".........."), std::invalid_argument);
   }
+
+  SECTION("String is not a perfect square") {
+    REQUIRE_THROWS_AS(Board("........"), std::invalid_argument);
+  }
+
 }
 
 TEST_CASE("Boards with no winner") {
