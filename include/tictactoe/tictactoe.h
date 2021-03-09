@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace tictactoe {
 
@@ -39,7 +40,23 @@ class Board {
   BoardState EvaluateBoard() const;
 
  private:
-  /// TODO: add your helper functions and member variables here
+  const size_t MAX_BOARD_DIM = 3;
+  const size_t MIN_BOARD_DIM = 3;
+  size_t BOARD_DIM;
+  std::vector<std::vector<char>> boardState_;
+
+  void InitializeBoard(const std::string& board);
+  void PrintBoard();
+
+  bool IsXorO(char evaluate);
+  bool HasValidNumOfMarks(int x_marks, int o_marks);
+
+  char DetermineWinner(int start_index, int increment_interval);
+
+  std::string FindLDiagonalWins();
+  std::string FindRDiagonalWins();
+  std::string FindRowWins();
+  std::string FindColWins();
 };
 
 }  // namespace tictactoe
