@@ -46,21 +46,49 @@ class Board {
   std::vector<std::vector<char>> boardState_;
 
   void InitializeBoard(const std::string& board);
-  void PrintBoard();
 
+  // change the size of boardState_ to match the initialized dimension size
+  void ResizeBoard();
+
+  // change the value at a certain location given a location and value
+  void SetBoardValue(int row, int col, char value);
+
+  // determine if passed char is an x or o
   auto IsXorO(char evaluate) -> bool;
-  auto HasValidNumOfMarks() -> bool;
-  auto DetermineWinner(int start_row, int start_col, int row_increment, int col_increment) -> char;
-  auto DetermineAllPossibleWinners() -> std::string;
-  auto CountMarks(char target_letter) -> int;
-  auto CountWinners(std::string possible_winners, char winning_mark) -> int;
+
+  // determine if the balance between the number of x's and o's are correct
+  auto HasValidNumOfMarks(int mark_difference) -> bool;
+
+  // given a starting location and how much/in what direction to increment in
+  // return 'x', 'o', or ' ' (no winner) depending on who wins
+  auto DetermineWinner(int start_row, int start_col, int row_increment,
+                       int col_increment) -> char;
+
+  // return string of all possible winners from every row, column and diagonal
+  auto GenerateAllPossibleWinners() -> std::string;
+
+  // return difference in Xs and Os
+  auto DetermineDifferenceInMarks() -> int;
+
+  // find which mark won for the left diagonal
+  auto FindLDiagonalWins() -> char;
+
+  // find which mark won for the left diagonal
+  auto FindRDiagonalWins() -> char;
+
+  // find which mark won in each row
+  auto FindRowWins() -> std::string;
+
+  // find which mark won in each column
+  auto FindColWins() -> std::string;
+
+  // return the number of the passed character in a passed string
+  auto CountCharacters(std::string possible_winners, char winning_mark) -> int;
+
+  // return a board state depending on whether there is a valid difference in
+  // marks for x and o wins
   auto validXWin(int difference) -> BoardState;
   auto validOWin(int difference) -> BoardState;
-
-  auto FindLDiagonalWins() -> char;
-  auto FindRDiagonalWins() -> char;
-  auto FindRowWins() -> std::string;
-  auto FindColWins() -> std::string;
 };
 
 }  // namespace tictactoe
