@@ -24,11 +24,11 @@ TEST_CASE("Invalid string provided to constructor") {
 TEST_CASE("Edge case input types") {
 
   SECTION("String consists of weird characters") {
-    REQUIRE_THROWS_AS(Board("@%tk1oxoo"), std::invalid_argument);
+    REQUIRE(Board("@%tk1oxoo").EvaluateBoard() == BoardState::UnreachableState);
   }
 
   SECTION("String has character casing") {
-    REQUIRE_THROWS_AS(Board("OxxOOXoXO"), std::invalid_argument);
+    REQUIRE(Board("OxxOOXoXO").EvaluateBoard() == BoardState::UnreachableState);
   }
 
 }
@@ -43,7 +43,7 @@ TEST_CASE("Boards with no winner") {
   }
 
   SECTION("Partial O move board with no winner") {
-    REQUIRE(Board("x.....o...").EvaluateBoard() == BoardState::NoWinner);
+    REQUIRE(Board("x.....o..").EvaluateBoard() == BoardState::NoWinner);
   }
 
   SECTION("Empty board with no winner") {
@@ -61,7 +61,7 @@ TEST_CASE("Boards with UnreachableState") {
   }
 
   SECTION("Impossible full board") {
-    REQUIRE(Board("xxoxoxxoo").EvaluateBoard() == BoardState::UnreachableState);
+    REQUIRE(Board("xxoxxxxoo").EvaluateBoard() == BoardState::UnreachableState);
   }
 
   SECTION("Too many winninng X marks") {
@@ -73,7 +73,7 @@ TEST_CASE("Boards with UnreachableState") {
   }
 
   SECTION("Too many losing X marks") {
-    REQUIRE(Board("xoxxox.oo").EvaluateBoard() == BoardState::UnreachableState);
+    REQUIRE(Board("oxoxoxoxx").EvaluateBoard() == BoardState::UnreachableState);
   }
 
   SECTION("Too many losing O marks") {
@@ -126,7 +126,7 @@ TEST_CASE("Boards with O Win"){
   }
 
   SECTION("Edge Row O Win") {
-    REQUIRE(Board("...xx.ooo").EvaluateBoard() == BoardState::Owins);
+    REQUIRE(Board("x..xx.ooo").EvaluateBoard() == BoardState::Owins);
   }
 
   SECTION("Middle Row O Win") {
