@@ -4,17 +4,20 @@
 #include <cmath>
 #include <stdexcept>
 
+using std::invalid_argument;
+using std::string;
+
 namespace tictactoe {
 
-Board::Board(const std::string& board) {
+Board::Board(const string& board) {
   double boardDimension = sqrt(board.size());
 
   if (boardDimension > kMaxBoardDim_) {
-    throw std::invalid_argument("Input string length exceeds maximum limit");
+    throw invalid_argument("Input string length exceeds maximum limit");
   } else if (boardDimension - floor(boardDimension) != 0) {
-    throw std::invalid_argument("Input string length must be a perfect square");
+    throw invalid_argument("Input string length must be a perfect square");
   } else if (boardDimension < kMinBoardDim_) {
-    throw std::invalid_argument("Input string length exceeds maximum limit");
+    throw invalid_argument("Input string length exceeds maximum limit");
   }
 
   kBoardDim_ = static_cast<int>(boardDimension);
@@ -22,27 +25,15 @@ Board::Board(const std::string& board) {
 }
 
 BoardState Board::EvaluateBoard() {
-  int mark_difference = DetermineDifferenceInMarks();
-  if (!HasValidNumOfMarks(mark_difference)) {
+  int mark_num_difference = DetermineDifferenceInMarks();
+  if (!HasValidNumOfMarks(mark_num_difference)) {
     return BoardState::UnreachableState;
   }
 
-  std::string winners = GenerateAllPossibleWinners();
-  int x_wins = CountCharacters(winners, 'x');
-  int o_wins = CountCharacters(winners, 'o');
-
-  if (x_wins >= 1 && o_wins >= 1) {
-    return BoardState::UnreachableState;
-  } else if (x_wins >= 1) {
-    return validXWin(mark_difference);
-  } else if (o_wins >= 1) {
-    return validOWin(mark_difference);
-  } else {
-    return BoardState::NoWinner;
-  }
+  return DetermineBoardState(mark_num_difference);
 }
 
-void Board::InitializeBoard(const std::string& board) {
+void Board::InitializeBoard(const string& board) {
   ResizeBoard();
 
   // maps every character in the string to a location on the array
@@ -70,9 +61,23 @@ void Board::SetBoardValue(int row, int col, char value) {
   }
 }
 
-bool Board::IsXorO(char evaluate) { return evaluate == 'x' || evaluate == 'o'; }
+const BoardState Board::DetermineBoardState(int mark_difference) {
+  string winners = GenerateAllPossibleWinners();
+  int x_wins = CountCharacters(winners, 'x');
+  int o_wins = CountCharacters(winners, 'o');
 
-int Board::DetermineDifferenceInMarks() {
+  if (x_wins >= 1 && o_wins >= 1) {
+    return BoardState::UnreachableState;
+  } else if (x_wins >= 1) {
+    return validXWin(mark_difference);
+  } else if (o_wins >= 1) {
+    return validOWin(mark_difference);
+  } else {
+    return BoardState::NoWinner;
+  }
+}
+
+const int Board::DetermineDifferenceInMarks() {
   int x_marks = 0;
   int o_marks = 0;
 
@@ -90,12 +95,8 @@ int Board::DetermineDifferenceInMarks() {
   return x_marks - o_marks;
 }
 
-bool Board::HasValidNumOfMarks(int mark_difference) {
-  return mark_difference == 0 || mark_difference == 1;
-}
-
-char Board::DetermineWinner(int start_row, int start_col, int row_increment,
-                            int col_increment) {
+const char Board::DetermineWinner(int start_row, int start_col,
+                                  int row_increment, int col_increment) {
   // if the starting location is not an x or o, there is no winner
   char possible_winner = boardState_[start_row][start_col];
   if (!IsXorO(possible_winner)) {
@@ -120,8 +121,8 @@ char Board::DetermineWinner(int start_row, int start_col, int row_increment,
   return possible_winner;
 }
 
-std::string Board::FindRowWins() {
-  std::string possible_winners;
+const string Board::FindRowWins() {
+  string possible_winners;
 
   // the starting location to check if a row has a win
   // always starts at col zero and check each proceeding col in the same row
@@ -133,8 +134,8 @@ std::string Board::FindRowWins() {
   return possible_winners;
 }
 
-std::string Board::FindColWins() {
-  std::string possible_winners;
+const string Board::FindColWins() {
+  string possible_winners;
 
   // the starting location to check if a col has a win
   // always starts at row zero and check each proceeding row in the same col
@@ -146,20 +147,21 @@ std::string Board::FindColWins() {
   return possible_winners;
 }
 
-char Board::FindLDiagonalWins() {
+const char Board::FindLDiagonalWins() {
   // always start checking at the top left,
   // moving one row down and one col right each time
   return DetermineWinner(0, 0, 1, 1);
 }
 
-char Board::FindRDiagonalWins() {
+const char Board::FindRDiagonalWins() {
   // always start checking at the top right,
   // moving one row down and one col left each time
   return DetermineWinner(0, kBoardDim_ - 1, 1, -1);
 }
 
-std::string Board::GenerateAllPossibleWinners() {
-  std::string allWinners;
+const string Board::GenerateAllPossibleWinners() {
+  string allWinners;
+
   allWinners.append(FindRowWins());
   allWinners.append(FindColWins());
   allWinners += FindLDiagonalWins();
@@ -168,7 +170,7 @@ std::string Board::GenerateAllPossibleWinners() {
   return allWinners;
 }
 
-int Board::CountCharacters(std::string possible_winners, char winning_mark) {
+const int Board::CountCharacters(string& possible_winners, char winning_mark) {
   int winners = 0;
   for (int index = 0; index < (int)possible_winners.size(); index++) {
     if (possible_winners[index] == winning_mark) {
@@ -178,7 +180,15 @@ int Board::CountCharacters(std::string possible_winners, char winning_mark) {
   return winners;
 }
 
-BoardState Board::validXWin(int difference) {
+const bool Board::HasValidNumOfMarks(int mark_difference) {
+  return mark_difference == 0 || mark_difference == 1;
+}
+
+const bool Board::IsXorO(char evaluate) {
+  return evaluate == 'x' || evaluate == 'o';
+}
+
+const BoardState Board::validXWin(int difference) {
   // x only wins when it has one more mark than the o
   if (difference == 1) {
     return BoardState::Xwins;
@@ -187,7 +197,7 @@ BoardState Board::validXWin(int difference) {
   }
 }
 
-BoardState Board::validOWin(int difference) {
+const BoardState Board::validOWin(int difference) {
   // o only wins when it has the same number of marks as x
   if (difference == 0) {
     return BoardState::Owins;
